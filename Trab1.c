@@ -5,7 +5,7 @@
 
 //para char
 typedef struct elementoc { 
-	char dadoc;
+	char dado;
 	struct elementoc *proximo;
 }t_elementoc;
 
@@ -26,7 +26,7 @@ t_listac *crialistac() {
 }
 void insereNoInicioc(char valor, t_listac *l) {
     t_elementoc * novoprimeiro = (t_elementoc *)malloc(sizeof(t_elementoc));
-    novoprimeiro->dadoc = valor;
+    novoprimeiro->dado = valor;
     novoprimeiro->proximo = l->primeiro;
     l->primeiro = novoprimeiro;
     if(l->ultimo == NULL)
@@ -36,7 +36,7 @@ void insereNoInicioc(char valor, t_listac *l) {
 int removeDoInicioc(t_listac *l) {
     if(estaVaziac(l))
         return -1;
-    int t = l->primeiro->dadoc;
+    int t = l->primeiro->dado;
     t_elementoc * removido = l->primeiro;
     l->primeiro = l->primeiro->proximo;
     free(removido);
@@ -123,4 +123,42 @@ float desempilharf(t_pilhaf * p) {
 }
 int estaVaziaPilhaf(t_pilhaf * p) {
     return estaVaziaf(p->l);
+}
+
+//funcoes
+int eNumero(char ch) {
+	if (ch == '0' || ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5' || ch == '6' || ch == '7' || ch == '8' || ch == '9')
+		return 1;
+	return 0;
+}
+int eOperador(char ch) {
+	if (ch == '+' || ch == '-' || ch == '/' || ch == '*')
+		return 1;
+	return 0;
+}
+int eSeparador(char ch) {
+	if (ch == '(')
+		return 1;
+	else if (ch == ')')
+		return -1;
+	return 0;
+}
+int prioridade(char ch) {
+	if (ch == '*' || ch == '/')
+		return 2;
+	else if (ch == '+' || ch == '-')
+		return 1;
+	return 0;
+}
+int i_num;
+int stringToInt(char *str, int i) {
+	int n = 0;
+	char c_num[10] = "\0";
+	while (ehNumero(str[i])) {
+		c_num[n] = str[i];
+		i++;
+		n++;
+	}
+	i_num = atoi(c_num);
+	return i;
 }
