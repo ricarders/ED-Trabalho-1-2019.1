@@ -9,19 +9,17 @@ void resolve();
 
 //structs
 typedef struct elemento{
-	char dado;
+	char dadoc;
 	float dadof;
 	struct  elemento * proximo;
-
 }t_elemento;
 
 typedef struct pilha{
 	t_elemento * topo;
-
 }t_pilha;
 
 //funcoes
-t_pilha * criarPilha(){ //inicia uma pilha vazia
+t_pilha * criaPilha(){ //inicia uma pilha vazia
 	t_pilha * p =(t_pilha * )malloc(sizeof(t_pilha));
 	p->topo=NULL;
 	return p;
@@ -36,9 +34,9 @@ int estaVazia(t_pilha * p){ //retorna 0 para vazia e 1 para nao vazia
 	}
 }
 
-void empilhaF(float dado, t_pilha * p){ //empilha um float
+void empilhaF(float dadof, t_pilha * p){ //empilha um float
 	t_elemento * novoElemento= (t_elemento *) malloc(sizeof(t_elemento));
-	novoElemento->dadof=dado;
+	novoElemento->dadof=dadof;
 	if(p->topo==NULL){
 		p->topo=novoElemento;
 		p->topo->proximo=NULL;
@@ -49,19 +47,7 @@ void empilhaF(float dado, t_pilha * p){ //empilha um float
 	}
 
 }
-void empilhaC(char dado, t_pilha * p){ //empilha um char
-	t_elemento * novoElemento= (t_elemento *) malloc(sizeof(t_elemento));
-	novoElemento->dado=dado;
-	if(p->topo==NULL){
-		p->topo=novoElemento;
-		p->topo->proximo=NULL;
-	}
-	else{
-		novoElemento->proximo=p->topo;
-		p->topo=novoElemento;		
-	}
 
-}
 float desempilhaF(t_pilha * p){ //desempilha um float
 	float retorno;
 	t_elemento * removido;
@@ -76,6 +62,21 @@ float desempilhaF(t_pilha * p){ //desempilha um float
 	free(removido);
 	return retorno;
 }
+
+void empilhaC(char dadoc, t_pilha * p){ //empilha um char
+	t_elemento * novoElemento= (t_elemento *) malloc(sizeof(t_elemento));
+	novoElemento->dadoc=dadoc;
+	if(p->topo==NULL){
+		p->topo=novoElemento;
+		p->topo->proximo=NULL;
+	}
+	else{
+		novoElemento->proximo=p->topo;
+		p->topo=novoElemento;		
+	}
+
+}
+
 char desempilhaC(t_pilha * p){ //desempilha um char
 	char retorno;
 	t_elemento * removido;
@@ -83,7 +84,7 @@ char desempilhaC(t_pilha * p){ //desempilha um char
 		return -1;
 	}
 	else{
-		retorno=p->topo->dado;
+		retorno=p->topo->dadoc;
 		removido=p->topo;
 		p->topo=p->topo->proximo;
 	}
@@ -121,8 +122,8 @@ int ehValida(t_pilha * p, char exp[]){ // retorna 1 para expressao valida e 0 pa
 	}else{
 		return 1;
 	}
-
 }
+
 int prioridade(char sinal){ // retorna 2 para operacoes de maior prioridade e 1 para operacoes de menor prioridade
 	if(sinal=='+' || sinal=='-'){
 		return 1;
@@ -153,12 +154,12 @@ void guardarNumeros(char exp[]){
 	}
 }
 void posFixa(char exp[]){
-	t_pilha * pilha=criarPilha();
+	t_pilha * pilha=criaPilha();
 	int i=0, caracter, j=0, prio_p, prio, p_vazia;
 	char aux_pos;
 	while(exp[i] !='\0'){
 		caracter=exp[i];
-		if(caracter>=48 && caracter<=57){
+		if(caracter>=48 && caracter<=57){ // operandos
 			posfixa[j]=exp[i];
 			j++;
 		}
@@ -179,7 +180,7 @@ void posFixa(char exp[]){
 					do{
 							p_vazia=estaVazia(pilha);
 							if(p_vazia==1){
-								prio_p=prioridade(pilha->topo->dado);
+								prio_p=prioridade(pilha->topo->dadoc);
 								prio=prioridade(exp[i]);
 								if(prio_p>=prio){
 									aux_pos=desempilhaC(pilha);
@@ -189,7 +190,7 @@ void posFixa(char exp[]){
 							}
 							p_vazia=estaVazia(pilha);
 							if(p_vazia==1){
-								prio_p=prioridade(pilha->topo->dado);
+								prio_p=prioridade(pilha->topo->dadoc);
 								prio=prioridade(exp[i]);
 							}
 
@@ -225,27 +226,27 @@ int contDigitos(float valor){
 	}
 	return count;
 }
-float calcular(float termo1, float termo2, char sinal){
+float calcular(float t1, float t2, char sinal){
 	float resultado;
 	switch(sinal){
 		case '+' :
-			resultado=termo1+termo2;
+			resultado=t1+t2;
 		break;
 		case '-':
-			resultado=termo1-termo2;
+			resultado=t1-t2;
 		break;
 		case '*':
-			resultado=termo1*termo2;
+			resultado=t1*t2;
 		break;
 		case '/':
-			resultado=termo1/termo2;
+			resultado=t1/t2;
 		break;
 	}
 	return resultado;
 }
 void resolve(){
-	t_pilha * pilha=criarPilha();
-	float termo1,termo2,aux_vet,resul;
+	t_pilha * pilha=criaPilha();
+	float t1,t2,aux_vet,resul;
 	int i=0,j=0,caracter,count;
 	while(posfixa[i] != '\0'){
 		caracter=posfixa[i];
@@ -257,9 +258,9 @@ void resolve(){
 			j++;
 		}
 		else{
-			termo2=desempilhaF(pilha);
-			termo1=desempilhaF(pilha);
-			resul=calcular(termo1,termo2,posfixa[i]);
+			t2=desempilhaF(pilha);
+			t1=desempilhaF(pilha);
+			resul=calcular(t1,t2,posfixa[i]);
 			empilhaF(resul,pilha);
 			i++;
 		}
@@ -269,7 +270,7 @@ void resolve(){
 }
 int main(){
 	char exp[50];
-	t_pilha * pilha=criarPilha();
+	t_pilha * pilha=criaPilha();
 	do{
 		printf("Digite a expressao: ");
 		scanf("%s", exp);
