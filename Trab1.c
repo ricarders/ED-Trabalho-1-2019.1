@@ -1,314 +1,285 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <string.h>
 
+//declaracoes
+float vet_num[30];
+char posfixa[50];
 
-//Structs
+void avaliacao();
+
+typedef struct elemento{
+	char dado;
+	float dado_float;
+	struct  elemento * proximo;
+
+}t_elemento;
 
 typedef struct pilha{
-    char dado;
-    int dado2;
-    struct pilha* prox;
-}Pilha;
+	t_elemento * topo;
 
-typedef struct header{
-    Pilha* inicio;
-    int tamanho;
-}Header;
-
-//Funcoes
-
-void criapilha (Header *p){
-    p->inicio = NULL;
-    p->tamanho = 0;
+}t_pilha;
+/*INICIO PILHA*/
+t_pilha * criarPilha(){
+	t_pilha * p =(t_pilha * )malloc(sizeof(t_pilha));
+	p->topo=NULL;
+	return p;
 }
-
-int estavazia(Header *p){
-    if(p->inicio == NULL){
-        return 1;
-    }
-    return 0;
+int Vazia(t_pilha * p){
+	if(p->topo==NULL){
+		return 0; /* se tiver vazia retorna 0*/
+	}
+	else{
+		return 1;/* se nao estiver vazia retorna 1 */
+	}
 }
+void empilharFloat(float dado, t_pilha * p){
+	t_elemento * novoElemento= (t_elemento *) malloc(sizeof(t_elemento));
+	novoElemento->dado_float=dado;
+	if(p->topo==NULL){
+		p->topo=novoElemento;
+		p->topo->proximo=NULL;
+	}
+	else{
+		novoElemento->proximo=p->topo;
+		p->topo=novoElemento;		
+	}
 
-int filaestavazia(Header *p){
-    if(p->inicio == NULL){
-        return 1;
-    }
-    return 0;
 }
+void empilhar(char dado, t_pilha * p){
+	t_elemento * novoElemento= (t_elemento *) malloc(sizeof(t_elemento));
+	novoElemento->dado=dado;
+	if(p->topo==NULL){
+		p->topo=novoElemento;
+		p->topo->proximo=NULL;
+	}
+	else{
+		novoElemento->proximo=p->topo;
+		p->topo=novoElemento;		
+	}
 
-
-int empilha(char a, int b, Header *p){
-    Pilha* topo = (Pilha *)malloc(sizeof(Pilha));
-    topo->dado = a;
-    topo->dado2 = b;
-    topo->prox = p->inicio;
-    
-    p->inicio = topo;
-    p->tamanho++;
-    return 0;
 }
-
-int criafila(Header *p){
-    p->inicio = NULL;
-    p->tamanho = 1;
-    return 0;
+float desempilharFloat(t_pilha * p){
+	float retorno;
+	t_elemento * removido;
+	if(p->topo== NULL){
+		return -1;
+	}
+	else{
+		retorno=p->topo->dado_float;
+		removido=p->topo;
+		p->topo=p->topo->proximo;
+	}
+	free(removido);
+	return retorno;
 }
-
-int enfileira(char a, int b, Header *p){
-    Pilha* ini = (Pilha *)malloc(sizeof(Pilha));
-    ini->dado = a;
-    ini->dado2 = b;
-    ini->prox = NULL;
-    int i = 1;
-    Pilha *aux = p->inicio;
-    while(i < p->tamanho){
-        aux = aux->prox;
-        i++;
-    }
-    if(p->inicio != NULL){
-    aux->prox = ini;
-    p->tamanho++;
-    }else{
-        p->inicio = ini;
-    }
-    return 0;
+char desempilhar(t_pilha * p){
+	char retorno;
+	t_elemento * removido;
+	if(p->topo== NULL){
+		return -1;
+	}
+	else{
+		retorno=p->topo->dado;
+		removido=p->topo;
+		p->topo=p->topo->proximo;
+	}
+	free(removido);
+	return retorno;
 }
+/*FIM PILHA*/
+int validar(t_pilha * p, char exp[]){
+	int caracter,i=0,r;
+	while(exp[i] != '\0'){
+		caracter=exp[i];
+		if(caracter>=40 && caracter<=57 && caracter!=46 && caracter!= 44){
+			if(caracter==40){ /*ver se é ( para empilhar*/
+				empilhar('(',p); 
+			}else if(caracter == 41){
+				r=desempilhar(p);
+				if(r==-1){
+					return 0; /*expressao invalida*/
+				}
+			}
+		}else{
+			return 0; /*0 para expressao invalida*/
+		}
+		i++;
+	}
+	caracter=exp[0];
+	if(caracter>=42 && caracter<=45)return 0; /*Se a expressão não começa com sinal*/
+	caracter=exp[i-1];/*verificar se o ultimo char da expressao e um sinal*/
+	if(caracter>=42 && caracter<=45){
+		return 0;
+	}
+	r=Vazia(p);
+	if(r==1){
+		return 0; /* expressao invalida */
+	}else{
+		return 1; /*expressao valida*/
+	}
 
-char desenfileirachar (Header *p){
-    if(filaestavazia(p)){
-        return 0;
-    }
-    char aux = p->inicio->dado;
-    Pilha* elemento = p->inicio;
-    p->inicio = p->inicio->prox;
-    p->tamanho--;
-    free(elemento);
-    return aux;
 }
-
-int desenfileiraint (Header *p){
-    if(filaestavazia(p)){
-        return 0;
-    }
-    int aux = p->inicio->dado2;
-    Pilha* elemento = p->inicio;
-    p->inicio = p->inicio->prox;
-    p->tamanho--;
-    free(elemento);
-    if(p->tamanho == 0){
-        p->inicio = NULL;
-    }
-    return aux;
+int prioridade(char sinal){
+	if(sinal=='+' || sinal=='-'){
+		return 1;
+	}
+	else if(sinal=='/' || sinal=='*'){
+		return 2;
+	}
+	return 0;
 }
-
-char desempilhachar (Header *p){
-    if(estavazia(p)){
-        return 0;
-    }
-    char aux = p->inicio->dado;
-    Pilha* elemento = p->inicio;
-    p->inicio = p->inicio->prox;
-    p->tamanho--;
-    free(elemento);
-        if(p->tamanho == 0){
-            p->inicio = NULL;
-        }
-    return aux;
+void guardarNumeros(char exp[]){
+	int i=0,caracter,j=0,h=0;
+	char aux[20];
+	while(exp[i] != '\0'){
+		caracter=exp[i];
+		while(caracter>=48 && caracter<=57){
+			aux[j]=exp[i];
+			j++;
+			i++;
+			caracter=exp[i];
+		}
+		if(j!=0){
+			aux[j]='\0';
+			vet_num[h]=atof(aux);
+			h++;
+			j=0;
+		}
+		i++;
+	}
 }
+void posFixa(char exp[]){
+	t_pilha * pilha=criarPilha();
+	int i=0, caracter, j=0, prio_p, prio, p_vazia;
+	char aux_pos;
+	while(exp[i] !='\0'){
+		caracter=exp[i];
+		if(caracter>=48 && caracter<=57){
+			posfixa[j]=exp[i];
+			j++;
+		}
+		else{
+			if(caracter==41){ /*caso for )*/
+				aux_pos=desempilhar(pilha);
+				while(aux_pos!='('){
+						posfixa[j]=aux_pos;
+						j++;
+					aux_pos=desempilhar(pilha);
+				}
+			}
+			else{
+				if(caracter==40){ /*caso for (*/
+					empilhar(exp[i], pilha);
+				}
+				else{ /*caso for sinal*/
+					do{
+							p_vazia=Vazia(pilha);
+							if(p_vazia==1){
+								prio_p=prioridade(pilha->topo->dado);
+								prio=prioridade(exp[i]);
+								if(prio_p>=prio){
+									aux_pos=desempilhar(pilha);
+									posfixa[j]=aux_pos;
+									j++;
+								}
+							}
+							p_vazia=Vazia(pilha);
+							if(p_vazia==1){
+								prio_p=prioridade(pilha->topo->dado);
+								prio=prioridade(exp[i]);
+							}
 
-int desempilhaint (Header *p){
-    if(estavazia(p)){
-        return 0;
-    }
-    int aux = p->inicio->dado2;
-    Pilha* elemento = p->inicio;
-    p->inicio = p->inicio->prox;
-    p->tamanho--;
-    free(elemento);
-    if(p->tamanho == 0){
-        p->inicio = NULL;
-    }
-    return aux;
+                    }while(p_vazia==1 && prio_p>=prio);
+					empilhar(exp[i],pilha);
+				}
+			}
+		}
+		i++;
+	}
+	p_vazia=Vazia(pilha);
+	while(p_vazia == 1){ /* desmpilhar os sinais enquanto a pilha nao estive vazia */
+		aux_pos=desempilhar(pilha);
+		posfixa[j]=aux_pos;
+		j++;
+		p_vazia=Vazia(pilha);
+	}
+	posfixa[j]='\0';
+	printf("Expressao posfixa: %s\n",posfixa);
+	avaliacao();
 }
-
-int liberapilha (Header *p){
-    if(estavazia(p)){
-        free(p);
-        return 0;
-    }
-    while(p->tamanho > 0){
-        Pilha* aux = p->inicio;
-        p->inicio = p->inicio->prox;
-        free(aux);
-        p->tamanho--;
-    }
-    free(p);
-    
-    return 0;
+int contDigitos(float valor){
+	int count=0,valor_int;
+	valor_int=valor;
+	if(valor_int==0){
+		count=1;
+	}
+	else{
+		while(valor_int!= 0){
+			count++;
+			valor_int=valor_int/10;
+		}
+	}
+	return count;
 }
-
-int converte(char a){
-    int x;
-    
-    x=a-'0';
-    return x;
+float calcular(float termo1, float termo2, char sinal){
+	float resultado;
+	switch(sinal){
+		case '+' :
+			resultado=termo1+termo2;
+		break;
+		case '-':
+			resultado=termo1-termo2;
+		break;
+		case '*':
+			resultado=termo1*termo2;
+		break;
+		case '/':
+			resultado=termo1/termo2;
+		break;
+	}
+	return resultado;
 }
-
-//main
-
+void avaliacao(){
+	t_pilha * pilha=criarPilha();
+	float termo1,termo2,aux_vet,resul;
+	int i=0,j=0,caracter,count;
+	while(posfixa[i] != '\0'){
+		caracter=posfixa[i];
+		if(caracter>=48 && caracter<=57){
+			aux_vet=vet_num[j];
+			empilharFloat(aux_vet,pilha);
+			count=contDigitos(aux_vet);
+			i=count+i;
+			j++;
+		}
+		else{
+			termo2=desempilharFloat(pilha);
+			termo1=desempilharFloat(pilha);
+			resul=calcular(termo1,termo2,posfixa[i]);
+			empilharFloat(resul,pilha);
+			i++;
+		}
+	}
+	resul=desempilharFloat(pilha);
+	printf("Resultado =  %.2f \n", resul);
+}
 int main(){
-    char entrada[100];
-    int i = 0;
-    
-    printf("Digite a expressao:");
-
-    scanf("%c", &entrada[i]);
-    while(entrada[i] != '\n'){
-        i++;
-        scanf("%c", &entrada[i]);
-    }
-    
-    Header* head = (Header *)(malloc(sizeof(Header)));
-    
-    criapilha(head);
-      
-    for(int k = 0; k < i; k++){
-        if(entrada[k] == '('){
-            empilha(entrada[k], 0, head);
-        }
-
-        else if(entrada[k] == ')'){
-            if(head->inicio == NULL || head->inicio->dado != '('){
-                printf("Expressao invalida\n");
-                return 0;
-            }
-
-            else{
-                desempilhachar(head);
-            }
-        }
-    }
-
-    if(estavazia(head) == 0){
-        liberapilha(head);
-        printf("Expressao invalida\n");
-        return 1;
-    }
-free(head);
-
-Header* header = (Header *)(malloc(sizeof(Header)));
-    
-criapilha(head);
-    
-Header* fila = (Header *)malloc(sizeof(Header));
-
-criafila(fila);
-    
-    int s = 0, numf = 0;
-    
-    for(int k = 0; k < i; k++){
-        
-        if (entrada[k] == '('){
-            empilha(entrada[k], 0, header);
-            numf = 0;
-        }
-        
-        else if(entrada[k] == '+'|| entrada[k] == '-'){
-            if(header->inicio != NULL){
-                if(header->inicio->dado == '+' || header->inicio->dado == '-' || header->inicio->dado == '*' || header->inicio->dado == '/'){
-                    while(header->tamanho > 0){
-                    enfileira(desempilhachar(header), 0, fila);
-                    }
-                    }
-                }
-            empilha(entrada[k], 0, header);
-            numf = 0;
-        }
-        else if(entrada[k] == '*' || entrada[k] == '/'){
-            if(header->inicio != NULL){
-            if(header->inicio->dado == '*'|| header->inicio->dado == '/'){
-                enfileira(desempilhachar(header), 0, fila);
-                }
-            }
-            empilha(entrada[k], 0, header);
-            numf = 0;
-        }
-        
-        else if(entrada[k] == ')'){
-                while(header->inicio->dado != '('){
-                    enfileira(desempilhachar(header), 0, fila);
-                }
-                desempilhachar(header);
-            numf = 0;
-        }
-        
-        else{
-            while(entrada[k] == '1'|| entrada[k] == '2'|| entrada[k] == '3'|| entrada[k] == '4'|| entrada[k] == '5'|| entrada[k] == '6' || entrada[k] == '7'|| entrada[k] == '8'|| entrada[k] == '9'|| entrada[k] == '0'){
-                s++;
-                k++;
-            }
-            while(s > 0){
-            numf+=(converte(entrada[k-s]))*pow(10,s-1);
-                s--;
-            }
-            k--;
-            enfileira(0, numf, fila);
-        }
-        
-    }
-    while(header->inicio != NULL){
-         enfileira(desempilhachar(header), 0, fila);
-    }
-    
-    
-    free(header);
-    
-    Header* calculo = (Header *)malloc(sizeof(Header));
-    criapilha(calculo);
-    int x, z;
-    
-    while(fila->tamanho > 0){
-        
-        if(fila->inicio->dado == 0){
-            empilha(0, desenfileiraint(fila), calculo);
-        }else{
-            
-            if(fila->inicio->dado == '+'){
-                x = desempilhaint(calculo);
-                z = desempilhaint(calculo);
-                z = z + x;
-                empilha(0, z, calculo);
-                desenfileirachar(fila);
-            }
-            
-            else if(fila->inicio->dado == '-'){
-                x = desempilhaint(calculo);
-                z = desempilhaint(calculo);
-                z = z - x;
-                empilha(0, z, calculo);
-                desenfileirachar(fila);
-            }
-            
-            else if(fila->inicio->dado == '*'){
-                x = desempilhaint(calculo);
-                z = desempilhaint(calculo);
-                z = z * x;
-                empilha(0, z, calculo);
-                desenfileirachar(fila);
-            }
-            
-            else if(fila->inicio->dado == '/'){
-                x = desempilhaint(calculo);
-                z = desempilhaint(calculo);
-                z = z / x;
-                empilha(0, z, calculo);
-                desenfileirachar(fila);
-            }
-        }
-    }
-
-    printf("Resultado: %d\n", desempilhaint(calculo));
-    
-    return 0;
+	char exp[50];
+	int v;
+	t_pilha * pilha=criarPilha();
+	do{
+		printf("Digite a expressao: ");
+		scanf("%s", exp);
+		v=validar(pilha,exp);
+		if(v==1){
+			printf("Expressao válida\n");
+			guardarNumeros(exp);
+			posFixa(exp);
+		}else{
+			printf("Expressa inválida\n");
+			printf("Digite novamente!!!\n");
+		}
+	}while(v!=1);
+	return 0;
 }
