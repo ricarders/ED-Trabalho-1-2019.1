@@ -278,7 +278,7 @@ int main(){
 			guardarNumeros(exp);
 			posFixa(exp);
 		}else{
-			printf("Expressa invalida\n");
+			printf("Expressao invalida\n");
 			break;
 		}
 	}while(ehValida(pilha,exp)!=1);
